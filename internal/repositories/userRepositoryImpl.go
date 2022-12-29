@@ -22,7 +22,7 @@ const (
 		"CREATE TABLE IF NOT EXISTS public.users (" +
 		"id serial primary key, " +
 		"login varchar(45) unique not null, " +
-		"password varchar(45) not null, " +
+		"password varchar(45) not null" +
 		")"
 	createUserLoginIndex = "" +
 		"CREATE INDEX IF NOT EXISTS user_login_index " +
