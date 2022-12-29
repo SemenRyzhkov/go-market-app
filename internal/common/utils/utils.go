@@ -8,7 +8,7 @@ import (
 )
 
 func GetServerAddress() string {
-	return os.Getenv("SERVER_ADDRESS")
+	return os.Getenv("RUN_ADDRESS")
 }
 
 func GetKey() string {
@@ -16,7 +16,7 @@ func GetKey() string {
 }
 
 func GetDBAddress() string {
-	return os.Getenv("DATABASE_DSN")
+	return os.Getenv("DATABASE_URI")
 }
 
 func LoadEnvironments(envFilePath string) {
