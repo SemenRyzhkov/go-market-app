@@ -7,8 +7,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"net/http"
-
-	"github.com/google/uuid"
 )
 
 var (
@@ -29,11 +27,18 @@ func New(key string) (CookieService, error) {
 	return &cookieServiceImpl{secretKey}, nil
 }
 
-func (c *cookieServiceImpl) WriteSigned(w http.ResponseWriter) error {
-	token := uuid.New().String()
+func (c *cookieServiceImpl) AuthenticateUser(w http.ResponseWriter, r *http.Request) string {
+	userID, validationErr := c.ReadSigned(r, "userID")
+	if validationErr != nil {
+		http.Error(w, validationErr.Error(), http.StatusUnauthorized)
+	}
+	return userID
+}
+
+func (c *cookieServiceImpl) WriteSigned(w http.ResponseWriter, userID string) error {
 	cookie := http.Cookie{
-		Name:     "token",
-		Value:    token,
+		Name:     "userID",
+		Value:    userID,
 		MaxAge:   3600,
 		HttpOnly: true,
 		Secure:   false,

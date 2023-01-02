@@ -13,3 +13,5 @@ github.com/lib/pq v1.10.7 h1:p7ZhMD+KsSRozJr34udlUrhboJwWAgCg34+/ZZNvZZw=
 github.com/lib/pq v1.10.7/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 github.com/omeid/pgerror v0.0.0-20201018020948-42c66c4d27d4 h1:YP/r0rUeYQ0+FCAaeBqfDzSu7oBxHme5NJ8huPzU05E=
 github.com/omeid/pgerror v0.0.0-20201018020948-42c66c4d27d4/go.mod h1:FfCpBvR6quigRzQl/97DJY0V0vDaPemjPRF/IQx5SuU=
+github.com/theplant/luhn v0.0.0-20170224032821-81a1a381387a h1:8Yp+jFiOdzOTk/YQcKEA/ccK0NQD3LT965HrQgNqd3o=
+github.com/theplant/luhn v0.0.0-20170224032821-81a1a381387a/go.mod h1:ZaMGXj0IgDRrzbd+S4SJEqxUQSOhbsyCbM6hXiIhnXM=

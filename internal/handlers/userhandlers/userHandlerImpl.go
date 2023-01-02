@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/google/uuid"
+
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
@@ -22,15 +24,17 @@ func NewHandler(userService userservice.UserService, cookieService cookieservice
 
 func (u *userHandlerImpl) Create(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	var user entity.User
+	var user entity.UserRequest
 	err := json.NewDecoder(request.Body).Decode(&user)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
-	err = u.userService.Create(request.Context(), user)
+
+	userID := uuid.New().String()
+	err = u.userService.Create(request.Context(), user, userID)
 
 	if err != nil {
-		var ve *myerrors.ViolationError
+		var ve *myerrors.UserViolationError
 		if errors.As(err, &ve) {
 			writer.WriteHeader(http.StatusConflict)
 			return
@@ -38,7 +42,7 @@ func (u *userHandlerImpl) Create(writer http.ResponseWriter, request *http.Reque
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	cookieErr := u.cookieService.WriteSigned(writer)
+	cookieErr := u.cookieService.WriteSigned(writer, userID)
 	if cookieErr != nil {
 		http.Error(writer, cookieErr.Error(), http.StatusInternalServerError)
 		return
@@ -47,12 +51,12 @@ func (u *userHandlerImpl) Create(writer http.ResponseWriter, request *http.Reque
 
 func (u *userHandlerImpl) Login(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	var user entity.User
+	var user entity.UserRequest
 	err := json.NewDecoder(request.Body).Decode(&user)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
-	err = u.userService.Login(request.Context(), user)
+	userID, err := u.userService.Login(request.Context(), user)
 	if err != nil {
 		var ip *myerrors.InvalidPasswordError
 		if errors.As(err, &ip) {
@@ -63,7 +67,7 @@ func (u *userHandlerImpl) Login(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
-	cookieErr := u.cookieService.WriteSigned(writer)
+	cookieErr := u.cookieService.WriteSigned(writer, userID)
 	if cookieErr != nil {
 		http.Error(writer, cookieErr.Error(), http.StatusInternalServerError)
 		return

@@ -12,7 +12,7 @@ func (ip *InvalidPasswordError) Error() string {
 	return fmt.Sprintf("password %s invalid", ip.Password)
 }
 
-func NewInvalidPasswordError(password string, err error) error {
+func NewInvalidPasswordError(password string) error {
 	return &InvalidPasswordError{
 		Password: password,
 	}

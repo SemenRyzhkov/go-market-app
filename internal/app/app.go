@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/SemenRyzhkov/go-market-app/internal/config"
+	"github.com/SemenRyzhkov/go-market-app/internal/handlers/orderhandlers"
 	"github.com/SemenRyzhkov/go-market-app/internal/handlers/userhandlers"
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories"
 	"github.com/SemenRyzhkov/go-market-app/internal/router"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
+	"github.com/SemenRyzhkov/go-market-app/internal/service/orderservice"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/userservice"
 )
 
@@ -19,17 +21,19 @@ type App struct {
 
 func New(cfg config.Config) (*App, error) {
 	log.Println("creating router")
-	urlRepository, err := repositories.New(cfg.DataBaseAddress)
+	repository, err := repositories.New(cfg.DataBaseAddress)
 	if err != nil {
 		return nil, err
 	}
-	urlService := userservice.New(urlRepository)
+	urlService := userservice.New(repository)
+	orderService := orderservice.New(repository)
 	cookieService, err := cookieservice.New(cfg.Key)
 	if err != nil {
 		return nil, err
 	}
 	urlHandler := userhandlers.NewHandler(urlService, cookieService)
-	urlRouter := router.NewRouter(urlHandler)
+	orderHandler := orderhandlers.NewHandler(orderService, cookieService)
+	urlRouter := router.NewRouter(urlHandler, orderHandler)
 
 	server := &http.Server{
 		Addr:         cfg.Host,
@@ -37,7 +41,7 @@ func New(cfg config.Config) (*App, error) {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	//defer closeHTTPServerAndStopWorkerPool(server, urlRepository)
+	//defer closeHTTPServerAndStopWorkerPool(server, repository)
 	return &App{
 		HTTPServer: server,
 	}, nil

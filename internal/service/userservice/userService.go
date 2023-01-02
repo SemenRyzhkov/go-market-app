@@ -7,6 +7,6 @@ import (
 )
 
 type UserService interface {
-	Create(ctx context.Context, user entity.User) error
-	Login(ctx context.Context, user entity.User) error
+	Create(ctx context.Context, user entity.UserRequest, userID string) error
+	Login(ctx context.Context, user entity.UserRequest) (string, error)
 }
