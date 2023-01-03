@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
@@ -57,6 +58,7 @@ func (o *orderHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Requ
 
 	ordersList, notFoundErr := o.orderService.GetAllByUserID(request.Context(), userID)
 	if notFoundErr != nil {
+		log.Printf("Erorr after get %v", notFoundErr)
 		http.Error(writer, notFoundErr.Error(), http.StatusNoContent)
 		return
 	}
@@ -64,6 +66,8 @@ func (o *orderHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Requ
 	writer.WriteHeader(http.StatusOK)
 	writeErr := json.NewEncoder(writer).Encode(ordersList)
 	if writeErr != nil {
+		log.Printf("Erorr after encode %v", writeErr)
+
 		http.Error(writer, writeErr.Error(), http.StatusInternalServerError)
 		return
 	}
