@@ -199,6 +199,8 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItToUpdatingQueue(ctx context.Context) error {
 	rows, err := r.db.QueryContext(ctx, getOrderNumbersWithStatusNewOrProcessingQuery)
 	if err != nil {
+		log.Printf("query2 error %v", err)
+
 		return err
 	}
 
@@ -215,7 +217,7 @@ func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItTo
 
 		err := r.addNumberToUpdatingQueue(num)
 		if err != nil {
-			log.Printf("rows2 error %v", err)
+			log.Printf("queue2 error %v", err)
 
 			return err
 		}
@@ -223,6 +225,8 @@ func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItTo
 
 	err = rows.Err()
 	if err != nil {
+		log.Printf("rows2 error %v", err)
+
 		return err
 	}
 
