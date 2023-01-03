@@ -208,11 +208,15 @@ func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItTo
 		var num int
 		err = rows.Scan(&num)
 		if err != nil {
+			log.Printf("scan2 error %v", err)
+
 			return err
 		}
 
 		err := r.addNumberToUpdatingQueue(num)
 		if err != nil {
+			log.Printf("rows2 error %v", err)
+
 			return err
 		}
 	}
