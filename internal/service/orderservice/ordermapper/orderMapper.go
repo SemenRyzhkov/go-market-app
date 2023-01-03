@@ -21,7 +21,7 @@ func MapOrderListToOrderDTOList(orderList []entity.Order) []entity.OrderDTO {
 	for _, o := range orderList {
 
 		dto := entity.OrderDTO{
-			Number:     o.Number,
+			Number:     string(o.Number),
 			Status:     o.Status.String(),
 			Accrual:    o.Accrual,
 			UploadedAt: o.UploadedAt.Format(time.RFC3339),
