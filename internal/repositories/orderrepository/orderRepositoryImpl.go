@@ -84,6 +84,7 @@ func (r *orderRepositoryImpl) runScheduler() error {
 				getErr := r.getOrderNumbersWithStatusNewOrProcessingAndAddItToUpdatingQueue(context.Background())
 				if err != nil {
 					err = getErr
+					return
 				}
 			}
 		}
@@ -166,7 +167,6 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 
 	rows, err := r.db.QueryContext(ctx, getAllOrdersByUserIDQuery, userID)
 	if err != nil {
-		log.Printf("query gett all error %v", err)
 		return nil, err
 	}
 
@@ -176,8 +176,6 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 		var o entity.Order
 		err = rows.Scan(&o.Number, &o.Status, &o.Accrual, &o.UploadedAt)
 		if err != nil {
-			log.Printf("scan error %v", err)
-
 			return nil, err
 		}
 
@@ -186,8 +184,6 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 
 	err = rows.Err()
 	if err != nil {
-		log.Printf("rows error %v", err)
-
 		return nil, err
 	}
 
@@ -199,8 +195,6 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItToUpdatingQueue(ctx context.Context) error {
 	rows, err := r.db.QueryContext(ctx, getOrderNumbersWithStatusNewOrProcessingQuery)
 	if err != nil {
-		log.Printf("query2 error %v", err)
-
 		return err
 	}
 
@@ -210,23 +204,17 @@ func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItTo
 		var num int
 		err = rows.Scan(&num)
 		if err != nil {
-			log.Printf("scan2 error %v", err)
-
 			return err
 		}
 
 		err := r.addNumberToUpdatingQueue(num)
 		if err != nil {
-			log.Printf("queue2 error %v", err)
-
 			return err
 		}
 	}
 
 	err = rows.Err()
 	if err != nil {
-		log.Printf("rows2 error %v", err)
-
 		return err
 	}
 
