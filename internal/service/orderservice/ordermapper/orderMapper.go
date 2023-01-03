@@ -1,6 +1,7 @@
 package ordermapper
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
@@ -30,9 +31,14 @@ func MapOrderListToOrderDTOList(orderList []entity.Order) []entity.OrderDTO {
 	return orderDTOList
 }
 
-func MapOrderResponseToOrder(orderResponse entity.OrderResponse) entity.Order {
+func MapOrderResponseToOrder(orderResponse entity.OrderResponse) (entity.Order, error) {
+	number, err := strconv.Atoi(orderResponse.Order)
+	if err != nil {
+		return entity.Order{}, err
+
+	}
 	order := entity.Order{
-		Number: orderResponse.Order,
+		Number: number,
 	}
 	if orderResponse.Status == "REGISTERED" || orderResponse.Status == "PROCESSING" {
 		order.Status = entity.OrderStatus(2)
@@ -42,5 +48,5 @@ func MapOrderResponseToOrder(orderResponse entity.OrderResponse) entity.Order {
 		order.Status = entity.OrderStatus(4)
 		order.Accrual = orderResponse.Accrual
 	}
-	return order
+	return order, nil
 }

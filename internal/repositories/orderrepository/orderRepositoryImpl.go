@@ -25,7 +25,7 @@ const (
 		"    accrual = $2 " +
 		"WHERE number = $3"
 	insertOrderQuery = "" +
-		"INSERT INTO public.orders (number, status, uploaded_at , user_id) " +
+		"INSERT INTO public.orders (number, status, accrual, uploaded_at, user_id) " +
 		"VALUES ($1, $2, $3, $4)"
 	findOrderByNumberQuery = "" +
 		"SELECT number, user_id FROM public.orders " +
@@ -108,8 +108,13 @@ func (r *orderRepositoryImpl) runUpdatingStatusWorkerPool() {
 					orderResponse, err := r.client.GetOrderResponse(num)
 					if err != nil {
 						log.Printf("get order response error %v", err)
+						return
 					}
-					order := ordermapper.MapOrderResponseToOrder(orderResponse)
+					order, err := ordermapper.MapOrderResponseToOrder(orderResponse)
+					if err != nil {
+						log.Printf("mapper error %v", err)
+						return
+					}
 					_, err = r.db.ExecContext(context.Background(), updateOrderQuery, order.Status, order.Accrual, order.Number)
 					if err != nil {
 						log.Printf("update order error %v", err)
@@ -136,7 +141,7 @@ func (r *orderRepositoryImpl) Save(ctx context.Context, order entity.Order) erro
 		return myerrors.NewExistedOrderError(existedOrder.Number, existedOrder.UserID)
 	}
 
-	_, err = r.db.ExecContext(ctx, insertOrderQuery, order.Number, order.Status, order.UploadedAt, order.UserID)
+	_, err = r.db.ExecContext(ctx, insertOrderQuery, order.Number, order.Status, 0, order.UploadedAt, order.UserID)
 
 	if err != nil {
 		if e := pgerror.UniqueViolation(err); e != nil {
