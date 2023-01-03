@@ -26,7 +26,7 @@ const (
 		"WHERE number = $3"
 	insertOrderQuery = "" +
 		"INSERT INTO public.orders (number, status, accrual, uploaded_at, user_id) " +
-		"VALUES ($1, $2, $3, $4)"
+		"VALUES ($1, $2, $3, $4, $5)"
 	findOrderByNumberQuery = "" +
 		"SELECT number, user_id FROM public.orders " +
 		"WHERE number=$1"
