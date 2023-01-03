@@ -19,11 +19,11 @@ type orderServiceImpl struct {
 }
 
 func (o orderServiceImpl) Create(ctx context.Context, order string, userID string) error {
-	err := checkNumberByLuhnAlgorithm(order)
+	number, err := checkNumberByLuhnAlgorithm(order)
 	if err != nil {
 		return err
 	}
-	return o.orderRepository.Save(ctx, ordermapper.MapToOrder(order, userID))
+	return o.orderRepository.Save(ctx, ordermapper.MapToOrder(number, userID))
 }
 
 func (o orderServiceImpl) GetAllByUserID(ctx context.Context, userID string) ([]entity.OrderDTO, error) {
@@ -40,13 +40,13 @@ func New(orderRepository orderrepository.OrderRepository) OrderService {
 	}
 }
 
-func checkNumberByLuhnAlgorithm(order string) error {
+func checkNumberByLuhnAlgorithm(order string) (int, error) {
 	orderNumber, err := strconv.Atoi(order)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if !luhn.Valid(orderNumber) {
-		return &myerrors.InvalidOrderNumberFormatError{Order: order}
+		return 0, &myerrors.InvalidOrderNumberFormatError{Order: order}
 	}
-	return nil
+	return orderNumber, nil
 }

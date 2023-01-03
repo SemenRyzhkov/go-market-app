@@ -14,7 +14,7 @@ const (
 		")"
 	initOrdersTableQuery = "" +
 		"CREATE TABLE IF NOT EXISTS public.orders (" +
-		"number varchar(45) primary key, " +
+		"number int8 primary key, " +
 		"status int2 not null, " +
 		"accrual decimal, " +
 		"uploaded_at timestamptz not null, " +

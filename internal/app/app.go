@@ -3,6 +3,9 @@ package app
 import (
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/SemenRyzhkov/go-market-app/internal/config"
@@ -28,7 +31,10 @@ func New(cfg config.Config) (*App, error) {
 		return nil, err
 	}
 	userRepository := userrepository.New(db)
-	orderRepository := orderrepository.New(db)
+	orderRepository, err := orderrepository.New(db, cfg.AccrualServiceAddress, cfg.ClientDuration)
+	if err != nil {
+		return nil, err
+	}
 	userService := userservice.New(userRepository)
 	orderService := orderservice.New(orderRepository)
 	cookieService, err := cookieservice.New(cfg.Key)
@@ -45,22 +51,22 @@ func New(cfg config.Config) (*App, error) {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	//defer closeHTTPServerAndStopWorkerPool(server, repository)
+	defer closeHTTPServerAndStopWorkerPoolAndScheduler(server, orderRepository)
 	return &App{
 		HTTPServer: server,
 	}, nil
 }
 
-//func closeHTTPServerAndStopWorkerPool(server *http.Server, repository repositories.URLRepository) {
-//	sigs := make(chan os.Signal, 1)
-//	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-//	go func() {
-//		<-sigs
-//		server.Close()
-//		repository.StopWorkerPool()
-//	}()
-//
-//}
+func closeHTTPServerAndStopWorkerPoolAndScheduler(server *http.Server, repository orderrepository.OrderRepository) {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		server.Close()
+		repository.StopSchedulerAndWorkerPool()
+	}()
+
+}
 
 func (app *App) Run() error {
 	log.Println("run server")

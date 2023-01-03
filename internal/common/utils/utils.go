@@ -19,6 +19,10 @@ func GetDBAddress() string {
 	return os.Getenv("DATABASE_URI")
 }
 
+func GetAccrualAddress() string {
+	return os.Getenv("ACCRUAL_SYSTEM_ADDRESS")
+}
+
 func LoadEnvironments(envFilePath string) {
 	err := godotenv.Load(envFilePath)
 

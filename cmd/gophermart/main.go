@@ -19,9 +19,10 @@ func main() {
 
 	serverAddress := utils.GetServerAddress()
 	dbAddress := utils.GetDBAddress()
+	accrualServiceAddress := utils.GetAccrualAddress()
 	key := utils.GetKey()
 
-	cfg := config.New(serverAddress, key, dbAddress)
+	cfg := config.New(serverAddress, key, dbAddress, accrualServiceAddress)
 	a, err := app.New(cfg)
 	if err != nil {
 		log.Fatal(err)
