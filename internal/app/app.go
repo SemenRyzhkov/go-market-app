@@ -9,6 +9,8 @@ import (
 	"github.com/SemenRyzhkov/go-market-app/internal/handlers/orderhandlers"
 	"github.com/SemenRyzhkov/go-market-app/internal/handlers/userhandlers"
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories"
+	"github.com/SemenRyzhkov/go-market-app/internal/repositories/orderrepository"
+	"github.com/SemenRyzhkov/go-market-app/internal/repositories/userrepository"
 	"github.com/SemenRyzhkov/go-market-app/internal/router"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/orderservice"
@@ -21,17 +23,19 @@ type App struct {
 
 func New(cfg config.Config) (*App, error) {
 	log.Println("creating router")
-	repository, err := repositories.New(cfg.DataBaseAddress)
+	db, err := repositories.InitDB(cfg.DataBaseAddress)
 	if err != nil {
 		return nil, err
 	}
-	urlService := userservice.New(repository)
-	orderService := orderservice.New(repository)
+	userRepository := userrepository.New(db)
+	orderRepository := orderrepository.New(db)
+	userService := userservice.New(userRepository)
+	orderService := orderservice.New(orderRepository)
 	cookieService, err := cookieservice.New(cfg.Key)
 	if err != nil {
 		return nil, err
 	}
-	urlHandler := userhandlers.NewHandler(urlService, cookieService)
+	urlHandler := userhandlers.NewHandler(userService, cookieService)
 	orderHandler := orderhandlers.NewHandler(orderService, cookieService)
 	urlRouter := router.NewRouter(urlHandler, orderHandler)
 

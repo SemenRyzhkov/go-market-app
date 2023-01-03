@@ -8,14 +8,14 @@ import (
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
-	"github.com/SemenRyzhkov/go-market-app/internal/repositories"
+	"github.com/SemenRyzhkov/go-market-app/internal/repositories/orderrepository"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/orderservice/ordermapper"
 )
 
 var _ OrderService = &orderServiceImpl{}
 
 type orderServiceImpl struct {
-	repository repositories.Repository
+	orderRepository orderrepository.OrderRepository
 }
 
 func (o orderServiceImpl) Create(ctx context.Context, order string, userID string) error {
@@ -23,20 +23,20 @@ func (o orderServiceImpl) Create(ctx context.Context, order string, userID strin
 	if err != nil {
 		return err
 	}
-	return o.repository.SaveOrder(ctx, ordermapper.MapToOrder(order, userID))
+	return o.orderRepository.Save(ctx, ordermapper.MapToOrder(order, userID))
 }
 
 func (o orderServiceImpl) GetAllByUserID(ctx context.Context, userID string) ([]entity.OrderDTO, error) {
-	orderList, err := o.repository.GetAllOrdersByUserID(ctx, userID)
+	orderList, err := o.orderRepository.GetAllByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 	return ordermapper.MapOrderListToOrderDTOList(orderList), nil
 }
 
-func New(userRepository repositories.Repository) OrderService {
+func New(orderRepository orderrepository.OrderRepository) OrderService {
 	return &orderServiceImpl{
-		userRepository,
+		orderRepository,
 	}
 }
 

@@ -6,23 +6,23 @@ import (
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
-	"github.com/SemenRyzhkov/go-market-app/internal/repositories"
+	"github.com/SemenRyzhkov/go-market-app/internal/repositories/userrepository"
 )
 
 var _ UserService = &userServiceImpl{}
 
 type userServiceImpl struct {
-	userRepository repositories.Repository
+	userRepository userrepository.UserRepository
 }
 
 func (u userServiceImpl) Create(ctx context.Context, user entity.UserRequest, userID string) error {
 	encodedPassword := base64.StdEncoding.EncodeToString([]byte(user.Password))
 
-	return u.userRepository.SaveUser(ctx, userID, user.Login, encodedPassword)
+	return u.userRepository.Save(ctx, userID, user.Login, encodedPassword)
 }
 
 func (u userServiceImpl) Login(ctx context.Context, user entity.UserRequest) (string, error) {
-	foundUser, err := u.userRepository.FindUserByLogin(ctx, user.Login)
+	foundUser, err := u.userRepository.FindByLogin(ctx, user.Login)
 	if err != nil {
 		return "", err
 	}
@@ -38,7 +38,7 @@ func (u userServiceImpl) Login(ctx context.Context, user entity.UserRequest) (st
 	return foundUser.ID, nil
 }
 
-func New(userRepository repositories.Repository) UserService {
+func New(userRepository userrepository.UserRepository) UserService {
 	return &userServiceImpl{
 		userRepository,
 	}
