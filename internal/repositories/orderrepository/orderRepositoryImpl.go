@@ -161,6 +161,7 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 
 	rows, err := r.db.QueryContext(ctx, getAllOrdersByUserIDQuery, userID)
 	if err != nil {
+		log.Printf("query gett all error %v", err)
 		return nil, err
 	}
 
@@ -170,6 +171,8 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 		var o entity.Order
 		err = rows.Scan(&o.Number, &o.Status, &o.Accrual, &o.UploadedAt)
 		if err != nil {
+			log.Printf("scan error %v", err)
+
 			return nil, err
 		}
 
@@ -178,6 +181,8 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 
 	err = rows.Err()
 	if err != nil {
+		log.Printf("rows error %v", err)
+
 		return nil, err
 	}
 
