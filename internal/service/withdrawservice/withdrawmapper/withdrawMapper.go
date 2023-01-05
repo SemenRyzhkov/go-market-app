@@ -18,7 +18,7 @@ func MapToWithdraw(withdrawRequest entity.WithdrawRequest, orderNumber int, user
 
 func MapToBalanceRequest(totalUserAccrual float32, totalUserWithdraw float32) entity.BalanceRequest {
 	return entity.BalanceRequest{
-		Current:   totalUserAccrual,
+		Current:   totalUserAccrual - totalUserWithdraw,
 		Withdrawn: totalUserWithdraw,
 	}
 }
