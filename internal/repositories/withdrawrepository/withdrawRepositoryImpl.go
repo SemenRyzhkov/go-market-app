@@ -54,13 +54,8 @@ func (w *withdrawRepositoryImpl) Save(ctx context.Context, withdraw entity.Withd
 	return nil
 }
 
-type NullWithdraw struct {
-	Withdraw float32
-	Valid    bool
-}
-
 func (w *withdrawRepositoryImpl) GetTotalWithdrawByUserID(ctx context.Context, userID string) (float32, error) {
-	var totalWithdraw NullWithdraw
+	var totalWithdraw sql.NullFloat64
 	row := w.db.QueryRowContext(ctx, getTotalWithdrawByUserIDQuery, userID)
 	err := row.Scan(&totalWithdraw)
 	if err != nil && err != sql.ErrNoRows {
@@ -69,7 +64,7 @@ func (w *withdrawRepositoryImpl) GetTotalWithdrawByUserID(ctx context.Context, u
 		return 0, err
 	}
 	if totalWithdraw.Valid {
-		return totalWithdraw.Withdraw, nil
+		return float32(totalWithdraw.Float64), nil
 	} else {
 		return 0.0, nil
 	}
