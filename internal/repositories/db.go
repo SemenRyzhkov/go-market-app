@@ -23,7 +23,7 @@ const (
 	initWithdrawTableQuery = "" +
 		"CREATE TABLE IF NOT EXISTS public.withdraw (" +
 		"number int8 primary key, " +
-		"sum int not null, " +
+		"sum decimal not null, " +
 		"processed_at timestamptz not null, " +
 		"user_id varchar(45) references public.users (id)" +
 		")"
