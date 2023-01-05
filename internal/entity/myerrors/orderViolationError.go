@@ -20,7 +20,6 @@ func (oe *OrderViolationError) Unwrap() error {
 }
 
 func NewOrderViolationError(order entity.Order, err error) error {
-
 	return &OrderViolationError{
 		Order: order,
 		Err:   err,

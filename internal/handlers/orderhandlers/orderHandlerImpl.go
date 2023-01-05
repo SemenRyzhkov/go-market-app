@@ -57,7 +57,7 @@ func (o *orderHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Requ
 
 	ordersList, notFoundErr := o.orderService.GetAllByUserID(request.Context(), userID)
 	if notFoundErr != nil {
-		http.Error(writer, notFoundErr.Error(), http.StatusNoContent)
+		http.Error(writer, notFoundErr.Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -51,6 +51,7 @@ func (w *withdrawHandlerImpl) Create(writer http.ResponseWriter, request *http.R
 
 func (w *withdrawHandlerImpl) GetUserBalance(writer http.ResponseWriter, request *http.Request) {
 	userID := w.cookieService.AuthenticateUser(writer, request)
+
 	balanceRequest, err := w.withdrawService.GetUserBalance(request.Context(), userID)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
@@ -71,7 +72,7 @@ func (w *withdrawHandlerImpl) GetAll(writer http.ResponseWriter, request *http.R
 
 	withdrawDTOList, notFoundErr := w.withdrawService.GetAllByUserID(request.Context(), userID)
 	if notFoundErr != nil {
-		http.Error(writer, notFoundErr.Error(), http.StatusNoContent)
+		http.Error(writer, notFoundErr.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -81,6 +82,7 @@ func (w *withdrawHandlerImpl) GetAll(writer http.ResponseWriter, request *http.R
 		return
 	}
 	writer.WriteHeader(http.StatusOK)
+
 	writeErr := json.NewEncoder(writer).Encode(withdrawDTOList)
 	if writeErr != nil {
 		http.Error(writer, writeErr.Error(), http.StatusInternalServerError)
