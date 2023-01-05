@@ -12,7 +12,7 @@ type OrderViolationError struct {
 }
 
 func (oe *OrderViolationError) Error() string {
-	return fmt.Sprintf("order with number %s already exists", oe.Order.Number)
+	return fmt.Sprintf("order with number %d already exists", oe.Order.Number)
 }
 
 func (oe *OrderViolationError) Unwrap() error {
