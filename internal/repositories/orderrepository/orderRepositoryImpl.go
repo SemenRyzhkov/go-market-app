@@ -196,8 +196,8 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 	return orderList, nil
 }
 
-func (r *orderRepositoryImpl) GetTotalAccrualByUserID(ctx context.Context, userID string) (float64, error) {
-	var totalAccrual float64
+func (r *orderRepositoryImpl) GetTotalAccrualByUserID(ctx context.Context, userID string) (float32, error) {
+	var totalAccrual float32
 	row := r.db.QueryRowContext(ctx, getTotalAccrualByUserIDQuery, userID)
 	err := row.Scan(&totalAccrual)
 	if err != nil && err != sql.ErrNoRows {

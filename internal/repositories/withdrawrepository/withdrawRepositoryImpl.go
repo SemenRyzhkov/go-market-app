@@ -53,8 +53,8 @@ func (w *withdrawRepositoryImpl) Save(ctx context.Context, withdraw entity.Withd
 	return nil
 }
 
-func (w *withdrawRepositoryImpl) GetTotalWithdrawByUserID(ctx context.Context, userID string) (float64, error) {
-	var totalAccrual float64
+func (w *withdrawRepositoryImpl) GetTotalWithdrawByUserID(ctx context.Context, userID string) (float32, error) {
+	var totalAccrual float32
 	row := w.db.QueryRowContext(ctx, getTotalWithdrawByUserIDQuery, userID)
 	err := row.Scan(&totalAccrual)
 	if err != nil && err != sql.ErrNoRows {
