@@ -35,6 +35,10 @@ const (
 		"uploaded_at::timestamptz " +
 		"FROM public.orders " +
 		"WHERE user_id=$1"
+	getTotalAccrualByUserIDQuery = "" +
+		"SELECT SUM(accrual) " +
+		"FROM public.orders " +
+		"WHERE user_id = $1"
 	getOrderNumbersWithStatusNewOrProcessingQuery = "" +
 		"SELECT number " +
 		"FROM public.orders " +
@@ -65,7 +69,7 @@ func New(db *sql.DB, host string, duration time.Duration) (OrderRepository, erro
 		updatingOrderQueue: make(chan int),
 		client:             client.NewClient(host, duration),
 	}
-	err := repo.runScheduler()
+	err := repo.runSchedulerForLoadNotUpdatedOrders()
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +77,7 @@ func New(db *sql.DB, host string, duration time.Duration) (OrderRepository, erro
 	return &repo, nil
 }
 
-func (r *orderRepositoryImpl) runScheduler() error {
+func (r *orderRepositoryImpl) runSchedulerForLoadNotUpdatedOrders() error {
 	var err error
 	go func() {
 		for {
@@ -190,6 +194,16 @@ func (r *orderRepositoryImpl) GetAllByUserID(ctx context.Context, userID string)
 	sort.Slice(orderList, func(i, j int) bool { return orderList[j].UploadedAt.Before(orderList[i].UploadedAt) })
 
 	return orderList, nil
+}
+
+func (r *orderRepositoryImpl) GetTotalAccrualByUserID(ctx context.Context, userID string) (float64, error) {
+	var totalAccrual float64
+	row := r.db.QueryRowContext(ctx, getTotalAccrualByUserIDQuery, userID)
+	err := row.Scan(&totalAccrual)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+	return totalAccrual, nil
 }
 
 func (r *orderRepositoryImpl) getOrderNumbersWithStatusNewOrProcessingAndAddItToUpdatingQueue(ctx context.Context) error {

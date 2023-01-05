@@ -11,13 +11,16 @@ import (
 	"github.com/SemenRyzhkov/go-market-app/internal/config"
 	"github.com/SemenRyzhkov/go-market-app/internal/handlers/orderhandlers"
 	"github.com/SemenRyzhkov/go-market-app/internal/handlers/userhandlers"
+	"github.com/SemenRyzhkov/go-market-app/internal/handlers/withdrawhandlers"
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories"
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories/orderrepository"
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories/userrepository"
+	"github.com/SemenRyzhkov/go-market-app/internal/repositories/withdrawrepository"
 	"github.com/SemenRyzhkov/go-market-app/internal/router"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/orderservice"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/userservice"
+	"github.com/SemenRyzhkov/go-market-app/internal/service/withdrawservice"
 )
 
 type App struct {
@@ -35,15 +38,18 @@ func New(cfg config.Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+	withdrawRepository := withdrawrepository.New(db)
 	userService := userservice.New(userRepository)
 	orderService := orderservice.New(orderRepository)
+	withdrawService := withdrawservice.New(withdrawRepository, orderRepository)
 	cookieService, err := cookieservice.New(cfg.Key)
 	if err != nil {
 		return nil, err
 	}
 	urlHandler := userhandlers.NewHandler(userService, cookieService)
 	orderHandler := orderhandlers.NewHandler(orderService, cookieService)
-	urlRouter := router.NewRouter(urlHandler, orderHandler)
+	withdrawHandler := withdrawhandlers.NewHandler(withdrawService, cookieService)
+	urlRouter := router.NewRouter(urlHandler, orderHandler, withdrawHandler)
 
 	server := &http.Server{
 		Addr:         cfg.Host,

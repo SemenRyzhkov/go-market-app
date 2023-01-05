@@ -20,6 +20,13 @@ const (
 		"uploaded_at timestamptz not null, " +
 		"user_id varchar(45) references public.users (id)" +
 		")"
+	initWithdrawTableQuery = "" +
+		"CREATE TABLE IF NOT EXISTS public.withdraw (" +
+		"number int8 primary key, " +
+		"sum int not null, " +
+		"processed_at timestamptz not null, " +
+		"user_id varchar(45) references public.users (id)" +
+		")"
 	setTimeZoneQuery = "" +
 		"set timezone = 'Europe/Moscow'"
 	createUserLoginIndex = "" +
@@ -54,6 +61,10 @@ func createTableIfNotExists(db *sql.DB) error {
 	_, createOrderTableErr := db.Exec(initOrdersTableQuery)
 	if createOrderTableErr != nil {
 		return createUserTableErr
+	}
+	_, createWithdrawTableErr := db.Exec(initWithdrawTableQuery)
+	if createWithdrawTableErr != nil {
+		return createWithdrawTableErr
 	}
 	_, createIndexErr := db.Exec(createUserLoginIndex)
 	if createIndexErr != nil {

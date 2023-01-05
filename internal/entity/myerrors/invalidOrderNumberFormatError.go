@@ -5,15 +5,15 @@ import (
 )
 
 type InvalidOrderNumberFormatError struct {
-	Order string
+	Number int
 }
 
 func (iof *InvalidOrderNumberFormatError) Error() string {
-	return fmt.Sprintf("order with number %s has invalid type", iof.Order)
+	return fmt.Sprintf("order with number %d has invalid type", iof.Number)
 }
 
-func NewInvalidOrderNumberFormatError(order string) error {
+func NewInvalidOrderNumberFormatError(number int) error {
 	return &InvalidOrderNumberFormatError{
-		Order: order,
+		Number: number,
 	}
 }
