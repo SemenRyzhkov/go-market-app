@@ -49,6 +49,23 @@ func (w *withdrawHandlerImpl) Create(writer http.ResponseWriter, request *http.R
 	writer.WriteHeader(http.StatusOK)
 }
 
+func (w *withdrawHandlerImpl) GetUserBalance(writer http.ResponseWriter, request *http.Request) {
+	userID := w.cookieService.AuthenticateUser(writer, request)
+	balanceRequest, err := w.withdrawService.GetUserBalance(request.Context(), userID)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+
+	writeErr := json.NewEncoder(writer).Encode(balanceRequest)
+	if writeErr != nil {
+		http.Error(writer, writeErr.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func (w *withdrawHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Request) {
 	//userID := o.cookieService.AuthenticateUser(writer, request)
 

@@ -14,6 +14,7 @@ const (
 	createOrderPath    = "/api/user/orders"
 	createWithdrawPath = "/api/user/balance/withdraw"
 	loginUserPath      = "/api/user/login"
+	getUserBalancePath = "/api/user/balance"
 )
 
 func NewRouter(h userhandlers.UserHandler, o orderhandlers.OrderHandler, w withdrawhandlers.WithdrawHandler) chi.Router {
@@ -24,6 +25,7 @@ func NewRouter(h userhandlers.UserHandler, o orderhandlers.OrderHandler, w withd
 	r.Post(createWithdrawPath, w.Create)
 	r.Post(loginUserPath, h.Login)
 	r.Get(createOrderPath, o.GetAll)
+	r.Get(getUserBalancePath, w.GetUserBalance)
 
 	return r
 }

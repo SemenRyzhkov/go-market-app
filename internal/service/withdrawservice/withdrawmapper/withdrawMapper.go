@@ -16,6 +16,13 @@ func MapToWithdraw(withdrawRequest entity.WithdrawRequest, orderNumber int, user
 	}
 }
 
+func MapToBalanceRequest(totalUserAccrual float64, totalUserWithdraw float64) entity.BalanceRequest {
+	return entity.BalanceRequest{
+		Current:   totalUserAccrual,
+		Withdrawn: totalUserWithdraw,
+	}
+}
+
 func MapOrderListToOrderDTOList(orderList []entity.Order) []entity.OrderDTO {
 	orderDTOList := make([]entity.OrderDTO, 0)
 	for _, o := range orderList {

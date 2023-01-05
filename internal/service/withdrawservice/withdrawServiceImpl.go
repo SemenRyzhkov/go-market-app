@@ -35,6 +35,18 @@ func (w *withdrawServiceImpl) Create(ctx context.Context, withdrawRequest entity
 	return w.withdrawRepository.Save(ctx, withdrawmapper.MapToWithdraw(withdrawRequest, order, userID))
 }
 
+func (w *withdrawServiceImpl) GetUserBalance(ctx context.Context, userID string) (entity.BalanceRequest, error) {
+	totalUserAccrual, err := w.orderRepository.GetTotalAccrualByUserID(ctx, userID)
+	if err != nil {
+		return entity.BalanceRequest{}, err
+	}
+	totalUserWithdraw, err := w.withdrawRepository.GetTotalWithdrawByUserID(ctx, userID)
+	if err != nil {
+		return entity.BalanceRequest{}, err
+	}
+	return withdrawmapper.MapToBalanceRequest(totalUserAccrual, totalUserWithdraw), nil
+}
+
 func (w *withdrawServiceImpl) GetAllByUserID(ctx context.Context, userID string) ([]entity.OrderDTO, error) {
 
 	return []entity.OrderDTO{}, nil

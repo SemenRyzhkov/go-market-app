@@ -8,4 +8,5 @@ import (
 
 type WithdrawRepository interface {
 	Save(ctx context.Context, withdraw entity.Withdraw) error
+	GetTotalWithdrawByUserID(ctx context.Context, userID string) (float64, error)
 }

@@ -11,6 +11,10 @@ const (
 	insertWithdrawQuery = "" +
 		"INSERT INTO public.withdraw (number, sum, processed_at, user_id) " +
 		"VALUES ($1, $2, $3, $4)"
+	getTotalWithdrawByUserIDQuery = "" +
+		"SELECT SUM(sum) " +
+		"FROM public.withdraw " +
+		"WHERE user_id = $1"
 
 	findOrderByNumberQuery = "" +
 		"SELECT number, user_id FROM public.orders " +
@@ -47,4 +51,14 @@ func (w *withdrawRepositoryImpl) Save(ctx context.Context, withdraw entity.Withd
 		return err
 	}
 	return nil
+}
+
+func (w *withdrawRepositoryImpl) GetTotalWithdrawByUserID(ctx context.Context, userID string) (float64, error) {
+	var totalAccrual float64
+	row := w.db.QueryRowContext(ctx, getTotalWithdrawByUserIDQuery, userID)
+	err := row.Scan(&totalAccrual)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
+	}
+	return totalAccrual, nil
 }
