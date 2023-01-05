@@ -9,5 +9,5 @@ import (
 type WithdrawService interface {
 	Create(ctx context.Context, withdrawRequest entity.WithdrawRequest, userID string) error
 	GetUserBalance(ctx context.Context, userID string) (entity.BalanceRequest, error)
-	GetAllByUserID(ctx context.Context, userID string) ([]entity.OrderDTO, error)
+	GetAllByUserID(ctx context.Context, userID string) ([]entity.WithdrawDTO, error)
 }

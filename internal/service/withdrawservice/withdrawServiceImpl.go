@@ -47,9 +47,12 @@ func (w *withdrawServiceImpl) GetUserBalance(ctx context.Context, userID string)
 	return withdrawmapper.MapToBalanceRequest(totalUserAccrual, totalUserWithdraw), nil
 }
 
-func (w *withdrawServiceImpl) GetAllByUserID(ctx context.Context, userID string) ([]entity.OrderDTO, error) {
-
-	return []entity.OrderDTO{}, nil
+func (w *withdrawServiceImpl) GetAllByUserID(ctx context.Context, userID string) ([]entity.WithdrawDTO, error) {
+	withdrawList, err := w.withdrawRepository.GetAllByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return withdrawmapper.MapWithdrawListToWithdrawDTOList(withdrawList), nil
 }
 
 func New(withdrawRepository withdrawrepository.WithdrawRepository, orderRepository orderrepository.OrderRepository) WithdrawService {

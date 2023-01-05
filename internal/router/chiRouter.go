@@ -10,11 +10,12 @@ import (
 )
 
 const (
-	createUserPath     = "/api/user/register"
-	createOrderPath    = "/api/user/orders"
-	createWithdrawPath = "/api/user/balance/withdraw"
-	loginUserPath      = "/api/user/login"
-	getUserBalancePath = "/api/user/balance"
+	createUserPath          = "/api/user/register"
+	createOrderPath         = "/api/user/orders"
+	createWithdrawPath      = "/api/user/balance/withdraw"
+	loginUserPath           = "/api/user/login"
+	getUserBalancePath      = "/api/user/balance"
+	getAllUserWithdrawsPath = "/api/user/withdrawals"
 )
 
 func NewRouter(h userhandlers.UserHandler, o orderhandlers.OrderHandler, w withdrawhandlers.WithdrawHandler) chi.Router {
@@ -26,6 +27,7 @@ func NewRouter(h userhandlers.UserHandler, o orderhandlers.OrderHandler, w withd
 	r.Post(loginUserPath, h.Login)
 	r.Get(createOrderPath, o.GetAll)
 	r.Get(getUserBalancePath, w.GetUserBalance)
+	r.Get(getAllUserWithdrawsPath, w.GetAll)
 
 	return r
 }

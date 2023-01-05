@@ -67,20 +67,23 @@ func (w *withdrawHandlerImpl) GetUserBalance(writer http.ResponseWriter, request
 }
 
 func (w *withdrawHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Request) {
-	//userID := o.cookieService.AuthenticateUser(writer, request)
+	userID := w.cookieService.AuthenticateUser(writer, request)
 
-	//ordersList, notFoundErr := o.orderService.GetAllByUserID(request.Context(), userID)
-	//if notFoundErr != nil {
-	//	http.Error(writer, notFoundErr.Error(), http.StatusNoContent)
-	//	return
-	//}
-	//
-	//writer.Header().Set("Content-Type", "application/json")
-	//writer.WriteHeader(http.StatusOK)
-	//writeErr := json.NewEncoder(writer).Encode(ordersList)
-	//
-	//if writeErr != nil {
-	//	http.Error(writer, writeErr.Error(), http.StatusInternalServerError)
-	//	return
-	//}
+	withdrawDTOList, notFoundErr := w.withdrawService.GetAllByUserID(request.Context(), userID)
+	if notFoundErr != nil {
+		http.Error(writer, notFoundErr.Error(), http.StatusNoContent)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	if len(withdrawDTOList) == 0 {
+		writer.WriteHeader(http.StatusNoContent)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
+	writeErr := json.NewEncoder(writer).Encode(withdrawDTOList)
+	if writeErr != nil {
+		http.Error(writer, writeErr.Error(), http.StatusInternalServerError)
+		return
+	}
 }

@@ -23,17 +23,16 @@ func MapToBalanceRequest(totalUserAccrual float32, totalUserWithdraw float32) en
 	}
 }
 
-func MapOrderListToOrderDTOList(orderList []entity.Order) []entity.OrderDTO {
-	orderDTOList := make([]entity.OrderDTO, 0)
-	for _, o := range orderList {
+func MapWithdrawListToWithdrawDTOList(withdrawList []entity.Withdraw) []entity.WithdrawDTO {
+	withdrawDTOList := make([]entity.WithdrawDTO, 0)
+	for _, w := range withdrawList {
 
-		dto := entity.OrderDTO{
-			Number:     strconv.Itoa(o.Number),
-			Status:     o.Status.String(),
-			Accrual:    o.Accrual,
-			UploadedAt: o.UploadedAt.Format(time.RFC3339),
+		dto := entity.WithdrawDTO{
+			Order:       strconv.Itoa(w.Order),
+			Sum:         w.Sum,
+			ProcessedAt: w.ProcessedAt.Format(time.RFC3339),
 		}
-		orderDTOList = append(orderDTOList, dto)
+		withdrawDTOList = append(withdrawDTOList, dto)
 	}
-	return orderDTOList
+	return withdrawDTOList
 }
