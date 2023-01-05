@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"sort"
 	"sync"
@@ -201,6 +202,7 @@ func (r *orderRepositoryImpl) GetTotalAccrualByUserID(ctx context.Context, userI
 	row := r.db.QueryRowContext(ctx, getTotalAccrualByUserIDQuery, userID)
 	err := row.Scan(&totalAccrual)
 	if err != nil && err != sql.ErrNoRows {
+		fmt.Printf("error total accrual %v", err)
 		return 0, err
 	}
 	return totalAccrual, nil

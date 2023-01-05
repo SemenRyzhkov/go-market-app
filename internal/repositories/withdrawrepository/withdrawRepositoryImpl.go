@@ -3,6 +3,7 @@ package withdrawrepository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
 )
@@ -58,6 +59,8 @@ func (w *withdrawRepositoryImpl) GetTotalWithdrawByUserID(ctx context.Context, u
 	row := w.db.QueryRowContext(ctx, getTotalWithdrawByUserIDQuery, userID)
 	err := row.Scan(&totalAccrual)
 	if err != nil && err != sql.ErrNoRows {
+		fmt.Printf("error total withdraw %v", err)
+
 		return 0, err
 	}
 	return totalAccrual, nil
