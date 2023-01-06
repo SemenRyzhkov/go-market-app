@@ -34,8 +34,11 @@ func VerifyJWT(next http.Handler) http.Handler {
 			if token.Valid {
 				next.ServeHTTP(writer, request)
 			} else {
-				http.Error(writer, err.Error(), http.StatusUnauthorized)
-				return
+				writer.WriteHeader(http.StatusUnauthorized)
+				_, err := writer.Write([]byte("You're Unauthorized due to invalid token"))
+				if err != nil {
+					return
+				}
 			}
 		} else {
 			writer.WriteHeader(http.StatusUnauthorized)
