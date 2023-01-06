@@ -20,7 +20,7 @@ const (
 
 func NewRouter(h userhandlers.UserHandler, o orderhandlers.OrderHandler, w withdrawhandlers.WithdrawHandler) chi.Router {
 	r := chi.NewRouter()
-	r.Use(middleware.DecompressRequest, middleware.CompressResponse, middleware.LoggingMiddleware)
+	r.Use(middleware.LoggingMiddleware)
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.VerifyJWT)
 		r.Post(createOrderPath, o.Create)
