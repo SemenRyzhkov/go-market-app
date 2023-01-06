@@ -21,13 +21,17 @@ const (
 func NewRouter(h userhandlers.UserHandler, o orderhandlers.OrderHandler, w withdrawhandlers.WithdrawHandler) chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.DecompressRequest, middleware.CompressResponse, middleware.LoggingMiddleware)
-	r.Post(createUserPath, h.Create)
-	r.Post(createOrderPath, o.Create)
-	r.Post(createWithdrawPath, w.Create)
-	r.Post(loginUserPath, h.Login)
-	r.Get(createOrderPath, o.GetAll)
-	r.Get(getUserBalancePath, w.GetUserBalance)
-	r.Get(getAllUserWithdrawsPath, w.GetAll)
-
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.VerifyJWT)
+		r.Post(createOrderPath, o.Create)
+		r.Post(createWithdrawPath, w.Create)
+		r.Get(createOrderPath, o.GetAll)
+		r.Get(getUserBalancePath, w.GetUserBalance)
+		r.Get(getAllUserWithdrawsPath, w.GetAll)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(createUserPath, h.Create)
+		r.Post(loginUserPath, h.Login)
+	})
 	return r
 }

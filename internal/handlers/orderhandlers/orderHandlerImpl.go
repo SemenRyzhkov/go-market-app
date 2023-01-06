@@ -7,21 +7,24 @@ import (
 	"net/http"
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
-	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
+	"github.com/SemenRyzhkov/go-market-app/internal/security"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/orderservice"
 )
 
 type orderHandlerImpl struct {
-	orderService  orderservice.OrderService
-	cookieService cookieservice.CookieService
+	orderService orderservice.OrderService
+	jwtHelper    *security.JwtHelper
 }
 
-func NewHandler(orderService orderservice.OrderService, cookieService cookieservice.CookieService) OrderHandler {
-	return &orderHandlerImpl{orderService, cookieService}
+func NewHandler(orderService orderservice.OrderService, jwtHelper *security.JwtHelper) OrderHandler {
+	return &orderHandlerImpl{orderService, jwtHelper}
 }
 
 func (o *orderHandlerImpl) Create(writer http.ResponseWriter, request *http.Request) {
-	userID := o.cookieService.AuthenticateUser(writer, request)
+	userID, err := o.jwtHelper.ExtractClaims(request)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
 
 	orderNumber, err := io.ReadAll(request.Body)
 	if err != nil {
@@ -53,7 +56,10 @@ func (o *orderHandlerImpl) Create(writer http.ResponseWriter, request *http.Requ
 }
 
 func (o *orderHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Request) {
-	userID := o.cookieService.AuthenticateUser(writer, request)
+	userID, err := o.jwtHelper.ExtractClaims(request)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
 
 	ordersList, notFoundErr := o.orderService.GetAllByUserID(request.Context(), userID)
 	if notFoundErr != nil {

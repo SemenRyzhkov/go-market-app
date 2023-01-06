@@ -9,17 +9,17 @@ import (
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
-	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
+	"github.com/SemenRyzhkov/go-market-app/internal/security"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/userservice"
 )
 
 type userHandlerImpl struct {
-	userService   userservice.UserService
-	cookieService cookieservice.CookieService
+	userService userservice.UserService
+	jwtHelper   *security.JwtHelper
 }
 
-func NewHandler(userService userservice.UserService, cookieService cookieservice.CookieService) UserHandler {
-	return &userHandlerImpl{userService, cookieService}
+func NewHandler(userService userservice.UserService, jwtHelper *security.JwtHelper) UserHandler {
+	return &userHandlerImpl{userService, jwtHelper}
 }
 
 func (u *userHandlerImpl) Create(writer http.ResponseWriter, request *http.Request) {
@@ -42,11 +42,12 @@ func (u *userHandlerImpl) Create(writer http.ResponseWriter, request *http.Reque
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	cookieErr := u.cookieService.WriteSigned(writer, userID)
-	if cookieErr != nil {
-		http.Error(writer, cookieErr.Error(), http.StatusInternalServerError)
-		return
+	token, err := u.jwtHelper.GenerateJWT(userID)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
+
+	writer.Header().Set("Authorization", token)
 }
 
 func (u *userHandlerImpl) Login(writer http.ResponseWriter, request *http.Request) {
@@ -67,9 +68,10 @@ func (u *userHandlerImpl) Login(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
-	cookieErr := u.cookieService.WriteSigned(writer, userID)
-	if cookieErr != nil {
-		http.Error(writer, cookieErr.Error(), http.StatusInternalServerError)
-		return
+	token, err := u.jwtHelper.GenerateJWT(userID)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
 	}
+
+	writer.Header().Set("Authorization", token)
 }

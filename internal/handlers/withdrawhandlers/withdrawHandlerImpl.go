@@ -7,24 +7,26 @@ import (
 
 	"github.com/SemenRyzhkov/go-market-app/internal/entity"
 	"github.com/SemenRyzhkov/go-market-app/internal/entity/myerrors"
-	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
+	"github.com/SemenRyzhkov/go-market-app/internal/security"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/withdrawservice"
 )
 
 type withdrawHandlerImpl struct {
 	withdrawService withdrawservice.WithdrawService
-	cookieService   cookieservice.CookieService
+	jwtHelper       *security.JwtHelper
 }
 
-func NewHandler(withdrawService withdrawservice.WithdrawService, cookieService cookieservice.CookieService) WithdrawHandler {
-	return &withdrawHandlerImpl{withdrawService, cookieService}
+func NewHandler(withdrawService withdrawservice.WithdrawService, jwtHelper *security.JwtHelper) WithdrawHandler {
+	return &withdrawHandlerImpl{withdrawService, jwtHelper}
 }
 
 func (w *withdrawHandlerImpl) Create(writer http.ResponseWriter, request *http.Request) {
-	userID := w.cookieService.AuthenticateUser(writer, request)
-
+	userID, err := w.jwtHelper.ExtractClaims(request)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
 	var req entity.WithdrawRequest
-	err := json.NewDecoder(request.Body).Decode(&req)
+	err = json.NewDecoder(request.Body).Decode(&req)
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 	}
@@ -50,7 +52,10 @@ func (w *withdrawHandlerImpl) Create(writer http.ResponseWriter, request *http.R
 }
 
 func (w *withdrawHandlerImpl) GetUserBalance(writer http.ResponseWriter, request *http.Request) {
-	userID := w.cookieService.AuthenticateUser(writer, request)
+	userID, err := w.jwtHelper.ExtractClaims(request)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+	}
 
 	balanceRequest, err := w.withdrawService.GetUserBalance(request.Context(), userID)
 	if err != nil {
@@ -68,7 +73,11 @@ func (w *withdrawHandlerImpl) GetUserBalance(writer http.ResponseWriter, request
 }
 
 func (w *withdrawHandlerImpl) GetAll(writer http.ResponseWriter, request *http.Request) {
-	userID := w.cookieService.AuthenticateUser(writer, request)
+	userID, err := w.jwtHelper.ExtractClaims(request)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	withdrawDTOList, notFoundErr := w.withdrawService.GetAllByUserID(request.Context(), userID)
 	if notFoundErr != nil {

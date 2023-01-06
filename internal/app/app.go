@@ -17,7 +17,7 @@ import (
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories/userrepository"
 	"github.com/SemenRyzhkov/go-market-app/internal/repositories/withdrawrepository"
 	"github.com/SemenRyzhkov/go-market-app/internal/router"
-	"github.com/SemenRyzhkov/go-market-app/internal/service/cookieservice"
+	"github.com/SemenRyzhkov/go-market-app/internal/security"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/orderservice"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/userservice"
 	"github.com/SemenRyzhkov/go-market-app/internal/service/withdrawservice"
@@ -42,13 +42,17 @@ func New(cfg config.Config) (*App, error) {
 	userService := userservice.New(userRepository)
 	orderService := orderservice.New(orderRepository)
 	withdrawService := withdrawservice.New(withdrawRepository, orderRepository)
-	cookieService, err := cookieservice.New(cfg.Key)
+	//cookieService, err := cookieservice.New(cfg.Key)
+	//if err != nil {
+	//	return nil, err
+	//}
+	jwtHelper, err := security.New(cfg.Key)
 	if err != nil {
 		return nil, err
 	}
-	urlHandler := userhandlers.NewHandler(userService, cookieService)
-	orderHandler := orderhandlers.NewHandler(orderService, cookieService)
-	withdrawHandler := withdrawhandlers.NewHandler(withdrawService, cookieService)
+	urlHandler := userhandlers.NewHandler(userService, jwtHelper)
+	orderHandler := orderhandlers.NewHandler(orderService, jwtHelper)
+	withdrawHandler := withdrawhandlers.NewHandler(withdrawService, jwtHelper)
 	urlRouter := router.NewRouter(urlHandler, orderHandler, withdrawHandler)
 
 	server := &http.Server{
